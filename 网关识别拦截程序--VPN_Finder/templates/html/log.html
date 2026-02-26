@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body, html{
+            color: #ffffff;
+            height: 100%;
+        }
+        
+
+        *{
+            margin: 0; padding: 0;
+        }
+        .tiltle {
+            background: rgb(74, 144, 226); 
+            position: relative; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 10%x; 
+            text-align: left;
+            font-size: 30px;
+        }
+        .body {
+          background: #f4f5f6; 
+        }
+        .btn-on{
+          width: 60px;
+          height: 25px;
+          margin: 0 3px;
+          border-radius: 25px;
+          font-size: 14px;
+        }
+        .btn-on{
+          cursor: pointer;
+          position: relative;
+          top: 10px;left: 20px;
+          border: 1px solid white;
+          background-color: rgb(74, 144, 226);
+        }
+        .btn-on-circle{
+          position: absolute;
+          width: 15px;
+          height: 15px;
+          top: 5px;
+          left: 5px;
+          background-color: rgb(255, 255, 255);
+          border-radius: 50%;
+          box-shadow: 0 0 10px white;
+          transition: all .5s;
+        }
+        .btn-on-text{
+          position: absolute;
+          right: 10px;
+          line-height: 25px;
+          color: white;
+          transition: all .5s;
+        }
+        
+        .card{
+            margin-top: 20px;
+            margin-left: 20px;
+            padding:15px;
+            box-shadow:10px 10px 10px -1px #2c8af82e;
+            background-color:#fff;
+            border-radius:4px;
+            display: flex;
+            overflow:auto;
+            font-size: 13px; 
+            width: 90%;   
+            height: 80%;
+            flex: auto;
+        }
+        .logs-panel {
+            display:flex;
+            flex: auto;
+            flex-direction:column;
+            flex-grow:1;
+            flex-basis:0;
+            list-style:none;
+            padding:10px;
+            border-radius:2px;
+            background-color:#f3f6f9;
+            font-size:12px;
+            color:#73808f;
+            overflow-y:auto;
+            font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace
+        }
+        .error {
+          color: red;
+        }
+
+        .wraning {
+          color: yellow;
+        }
+
+    </style>
+</head>
+<body class="body">
+    <header class="tiltle" ><strong style="margin-left: 20px;">AirGuard</strong></header>
+    <p class="btn-on" style="background-color: #ccc" onclick="on_off()">
+      <span class="btn-on-circle" style="left: 40px;background-color: #888;box-shadow: 0 0 10px #888;"></span>
+      <span class="btn-on-text" style="right: 30px;color: #888;">OFF</span>
+    </p>
+    <div class="card"><ul class="logs-panel list"></ul></div>
+    <script src="{{url_for('static',filename='js/jquery.min.js')}}"></script>
+    <script>
+      function on_off(type){
+        var btn = document.getElementsByClassName("btn-on")[0];
+        var circle = document.getElementsByClassName("btn-on-circle")[0];
+        var text = document.getElementsByClassName("btn-on-text")[0];
+    
+        if(type){
+            btn.style= "background-color: #ccc;"
+            circle.style="left: 40px;background-color: #888;box-shadow: 0 0 10px #888;";
+            text.style="right: 30px;color: #888;";
+            text.innerText="OFF";
+            const Http = new XMLHttpRequest();
+            const url='./stop';
+            Http.open("GET", url);
+            Http.send();
+
+            Http.onreadystatechange = (e) => {
+                console.log(Http.responseText)
+            }
+        } else {
+              btn.style= "";
+              circle.style="";
+              text.style="";
+              text.innerText="ON";
+              const Http = new XMLHttpRequest();
+              const url='./start';
+              Http.open("GET", url);
+              Http.send();
+              Http.onreadystatechange = (e) => {
+                  console.log(Http.responseText)
+              }
+              setTimeout(open_ws(), 3000);
+          }
+        btn.setAttribute("onclick", "on_off(" + !type + ")"); 
+      }
+      function open_ws() {
+        if (!window.WebSocket) {
+            if (window.MozWebSocket) {
+                window.WebSocket = window.MozWebSocket;
+            } else {
+                $('#msg').append("<p>你的浏览器不支持websocket</p>");
+            }
+        }
+        var ws = new WebSocket('{{ server }}');
+        ws.onopen = function(evt) {
+            $('.list').append('<li>start</li>');
+        }
+        ws.onmessage = function(evt) {
+            $('.list').append('<li>' + evt.data + '</li>');
+            setTimeout(function(){$('#msg').scrollTop($('.list').height()-$('#msg').height());}, 100)
+        }
+    };
+    </script>
+</body>
+</html>

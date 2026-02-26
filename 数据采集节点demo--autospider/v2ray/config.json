@@ -1,0 +1,92 @@
+{
+    "log": {
+      "access": "/var/log/v2ray/access.log",
+      "error": "/var/log/v2ray/error.log",
+      "loglevel": "warning"
+    },
+    "inbounds": [
+      {
+        "tag": "proxy",
+        "port": 11156,
+        "listen": "0.0.0.0",
+        "protocol": "socks",
+        "sniffing": {
+          "enabled": true,
+          "destOverride": [
+            "http",
+            "tls"
+          ]
+        },
+        "settings": {
+          "auth": "noauth",
+          "udp": true
+        }
+      }
+    ],
+    "outbounds": [
+      {
+        "tag": "proxy",
+        "protocol": "vmess",
+        "settings": {
+          "vnext": [
+            {
+              "address": "ex9.sbullet.xyz",
+              "port": 11155,
+              "users": [
+                {
+                  "id": "c1c25f25-9281-4b7e-a415-fb0bf48a192d",
+                  "alterId": 0,
+                  "security": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        "streamSettings": {
+          "network": "kcp",
+          "kcpSettings": {
+            "mtu": 1350,
+            "tti": 50,
+            "uplinkCapacity": 12,
+            "downlinkCapacity": 100,
+            "congestion": false,
+            "readBufferSize": 2,
+            "writeBufferSize": 2,
+            "header": {
+              "type": "none"
+            }
+          }
+        },
+        "mux": {
+          "enabled": false,
+          "concurrency": -1
+        }
+      },
+      {
+        "tag": "direct",
+        "protocol": "freedom",
+        "settings": {}
+      },
+      {
+        "tag": "block",
+        "protocol": "blackhole",
+        "settings": {
+          "response": {
+            "type": "http"
+          }
+        }
+      }
+    ],
+    "routing": {
+      "domainStrategy": "IPIfNonMatch",
+      "rules": [
+        {
+          "type": "field",
+          "inboundTag": [
+            "api"
+          ],
+          "outboundTag": "api"
+        }
+      ]
+    }
+  }

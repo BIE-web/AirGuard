@@ -1,0 +1,8 @@
+{
+    "ip" : "192.168.123.100",
+    "router_ip" : "192.168.123.116",
+    "iface" : "br",
+    "flask_port" : "4444",
+    "websocketd_port" : "8008",
+    "vpn_finder_port" : "31115"
+}

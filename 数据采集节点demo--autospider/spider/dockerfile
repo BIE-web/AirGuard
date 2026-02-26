@@ -1,0 +1,20 @@
+FROM ubuntu:20.04
+
+COPY gocron-node /gocron-node
+COPY chrome_soft /chrome_soft
+
+RUN sed -i "s/security.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list && \
+    sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list  && \
+    apt-get update
+RUN set -ex && \
+    apt-get -y install python3.9 && \
+    apt-get -y install python3-pip && \
+    pip3 install selenium -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com && \
+    pip3 install pytz -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+RUN set -ex && chmod +x /gocron-node
+RUN dpkg -i /chrome_soft/chrome_v100.deb;exit 0
+RUN apt -f install -y
+RUN set -ex && dpkg -i /chrome_soft/chrome_v100.deb
+RUN chmod +x /chrome_soft/chromedriver_v100
+
+CMD /gocron-node -allow-root

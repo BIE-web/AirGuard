@@ -1,0 +1,66 @@
+version: '3'
+services:
+  spider:
+    image: 'autospider/spider'
+    container_name: 'autospider_spider'
+    build: ./spider
+    restart: always
+    volumes:
+      - ./spider/code:/code
+    environment:
+      TZ: Asia/Shanghai
+    networks:
+      autospider_network:
+        ipv4_address: 172.19.0.2
+
+  v2ray:
+    image: 'autospider/v2ray'
+    container_name: 'autospider_v2ray'
+    build: ./v2ray
+    restart: always
+    volumes:
+      - ./v2ray/pcap:/pcap
+    environment:
+      TZ: Asia/Shanghai
+    networks:
+      autospider_network:
+        ipv4_address: 172.19.0.3
+
+  datbase:
+    image: 'mysql:8.0-oracle'
+    container_name: 'autospider_datbase'
+    restart: always
+    command: 
+      --lower_case_table_names=1
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+    volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d/
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: test@8888
+      MYSQL_DATABASE: console
+    networks:
+      autospider_network:
+        ipv4_address: 172.19.0.4
+
+  cron:
+    image: 'ouqg/gocron'
+    container_name: 'autospider_cron'
+    restart: always
+    volumes:
+      - ./cron/conf:/app/conf
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - 5920:5920
+    networks:
+        autospider_network:
+          ipv4_address: 172.19.0.5
+
+networks:
+   autospider_network:
+      ipam:
+         config:
+         - subnet: 172.19.0.0/24

@@ -1,0 +1,13 @@
+FROM v2fly/v2fly-core:v4.44.0
+
+COPY config.json /config.json
+COPY gocron-node /gocron-node
+COPY run.sh /run.sh
+COPY upload_baiduyun.py /root/upload_baiduyun.py
+
+RUN sed -i 's@dl-cdn.alpinelinux.org@mirrors.aliyun.com@g' /etc/apk/repositories
+RUN apk add tcpdump
+RUN apk add bash
+RUN apk add python3
+RUN apk add py3-pip
+RUN pip install bypy
